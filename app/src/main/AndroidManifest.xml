@@ -6,19 +6,25 @@
         android:name=".MApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".activity.MainActivity" android:label="LQ签到">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SecondActivity" />
-        <activity android:name=".ThreeActivity" />
-        <activity android:name=".BaseActivity"></activity>
+        <activity android:name=".activity.SDCardFileExplorerActivity" />
+        <activity android:name=".activity.GenerateBarActivity" />
+        <activity android:name=".activity.OutActivity" />
+        <activity
+            android:configChanges="orientation|keyboardHidden"
+            android:name=".activity.CaptureActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysHidden"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            ></activity>
     </application>
 
     <uses-permission android:name="android.permission.CAMERA" />

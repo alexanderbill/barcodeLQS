@@ -3,4 +3,8 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="OK">OK</string>
+    <string name="signin">签到</string>
+    <string name="force_signin">强制签到</string>
+    <string name="cancel">取消</string>
 </resources>
