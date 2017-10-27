@@ -445,6 +445,8 @@ public class CaptureActivity extends BaseActivity {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     doRecord(user.mRowId + " " + Config.getInstance().seal);
+                    EditText et = (EditText)findViewById(R.id.search);
+                    et.setText("");
                 }
             });
 
