@@ -2,6 +2,7 @@ package com.uuch.android_zxinglibrary.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -44,7 +45,7 @@ public abstract class BaseActivity extends FragmentActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         switch(requestCode){
             case FILE_SELECT_CODE:
                 // ResultActivity的返回数据
@@ -70,6 +71,8 @@ public abstract class BaseActivity extends FragmentActivity {
                         new Handler().post(new Runnable() {
                             @Override
                             public void run() {
+                                final SharedPreferences sharedPreferences = getSharedPreferences("name", MODE_PRIVATE);
+                                sharedPreferences.edit().putString("path", path).commit();
                                 xlsData = doReadPath(path);
                                 doDeal();
                             }
@@ -81,7 +84,7 @@ public abstract class BaseActivity extends FragmentActivity {
         }
     }
 
-    private void doDeal() {
+    protected void doDeal() {
         BaseActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -99,7 +102,7 @@ public abstract class BaseActivity extends FragmentActivity {
 
     abstract void postReadExcelFail();
 
-    private String doReadPath(String path) {
+    protected String doReadPath(String path) {
         try {
             return doRead(new FileInputStream(path));
         } catch (Exception e) {

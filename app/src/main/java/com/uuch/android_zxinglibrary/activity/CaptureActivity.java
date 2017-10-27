@@ -156,7 +156,18 @@ public class CaptureActivity extends BaseActivity {
 
                     }
 
-                    showFileChooser("选择预签到表");
+                    if (!actionid.equals(sname)) {
+                        showFileChooser("选择预签到表");
+                    } else {
+                        final String path = sharedPreferences.getString("path", "");
+                        if (!TextUtils.isEmpty(path)) {
+                            xlsData = doReadPath(path);
+                            doDeal();
+                        } else {
+                            showFileChooser("选择预签到表");
+                        }
+                    }
+
                     dialog.dismiss();
                 } else {
 

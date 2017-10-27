@@ -6,9 +6,10 @@
 
     <EditText
         android:id="@+id/actionId"
-        android:hint="输入活动id"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:hint="输入活动id"
+        android:textColor="@android:color/holo_red_light" />
 
     <LinearLayout
         android:layout_width="match_parent"
