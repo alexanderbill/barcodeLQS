@@ -17,7 +17,7 @@ public class Config {
     public String version;
     public String color;
     public List<String> users;
-    public String seal;
+    public List<String> seal;
     public String APP_title;
     public String ID_title;
     public String footprint;
@@ -35,7 +35,7 @@ public class Config {
     public void init(JSONObject object) {
         version = object.optString("v", "1.0.3");
         color = object.optString("color", "#FFFFFF");
-        seal = object.optString("seal", "");
+        seal = Arrays.asList(object.optString("seal", "").split("/"));
         APP_title = object.optString("APP_title", "");
         ID_title = object.optString("ID_title", "");
         footprint = object.optString("footprint", "");

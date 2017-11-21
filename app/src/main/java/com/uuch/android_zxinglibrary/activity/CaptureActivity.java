@@ -129,7 +129,7 @@ public class CaptureActivity extends BaseActivity {
             public void onClick(View v) {
                 String sname = name.getText().toString();
                 if (!TextUtils.isEmpty(sname)) {
-                    ((TextView)findViewById(R.id.checkTitle)).setText(sname + "签到中");
+                    ((TextView)findViewById(R.id.checkTitle)).setText(sname + " 签到中");
                     try {
                         String append = mUsername;
                         if (append.equals("dev20170819")) {
@@ -151,7 +151,8 @@ public class CaptureActivity extends BaseActivity {
                                 female++;
                         }
                         br.close();
-                        ((TextView) findViewById(R.id.checkinResult)).setText(male + "男，" + female + "女");
+                        ((TextView) findViewById(R.id.checkinResultMan)).setText(String.valueOf(male));
+                        ((TextView) findViewById(R.id.checkinResultWoman)).setText(String.valueOf(female));
                     } catch (Exception e) {
 
                     }
@@ -279,7 +280,7 @@ public class CaptureActivity extends BaseActivity {
         try {
             // Toast.makeText(CaptureActivity.this, result, Toast.LENGTH_LONG).show();
             String[] s = result.split(" ");
-            if (!Config.getInstance().seal.equals("ENTIRE") && s.length >= 2 && !s[1].equals(Config.getInstance().seal)) {
+            if (!Config.getInstance().seal.contains("ENTIRE") && s.length >= 2 && !Config.getInstance().seal.contains(s[1])) {
                 Toast.makeText(this, "此二维码不是本部组的", Toast.LENGTH_LONG).show();
                 result = "";
                 throw new Exception("");
@@ -318,7 +319,12 @@ public class CaptureActivity extends BaseActivity {
                 female++;
             }
 
-            ((TextView) findViewById(R.id.checkinResult)).setText(toShow + "\n" + male + "男，" + female + "女");
+            ((TextView) findViewById(R.id.checkinResultMan)).setText(String.valueOf(male));
+            ((TextView) findViewById(R.id.checkinResultWoman)).setText(String.valueOf(female));
+            String[] details = toShow.split(" ");
+            if (details.length >= 2) {
+                ((TextView) findViewById(R.id.checkTitle)).setText(details[1] + " 签到中");
+            }
             RandomAccessFile raf = new RandomAccessFile(file, "rwd");
             raf.seek(file.length());
             String toRecord = key;
