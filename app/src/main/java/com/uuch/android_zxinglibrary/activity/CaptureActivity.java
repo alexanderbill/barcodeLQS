@@ -280,7 +280,9 @@ public class CaptureActivity extends BaseActivity {
         try {
             // Toast.makeText(CaptureActivity.this, result, Toast.LENGTH_LONG).show();
             String[] s = result.split(" ");
-            if (!Config.getInstance().seal.contains("ENTIRE") && s.length >= 2 && !Config.getInstance().seal.contains(s[1])) {
+            if (!Config.getInstance().seal.contains("ENTIRE") &&
+                    (s.length >= 2 && !Config.getInstance().seal.contains(s[1]) ||
+                            s.length ==1 && !Config.getInstance().seal.contains("NULL"))) {
                 Toast.makeText(this, "此二维码不是本部组的", Toast.LENGTH_LONG).show();
                 result = "";
                 throw new Exception("");
@@ -293,7 +295,7 @@ public class CaptureActivity extends BaseActivity {
                 showAlertDialog(toShow + "已经签到，请勿重复签到", s[0], toShow, result, 2);
                 return;
             }
-            if (!vId.contains(s[0])) {
+            if (vId.size() > 0 && !vId.contains(s[0])) {
                 showAlertDialog(s[0] + "不在名单中", s[0], s[0], result, 1);
                 return;
             }
@@ -312,11 +314,13 @@ public class CaptureActivity extends BaseActivity {
 
     private void forceDoRecord(String key, String toShow, String result, int status) {
         try {
-            vSignedId.add(key);
-            if (key.startsWith("A")) {
-                male++;
-            } else {
-                female++;
+            if (status != 2) {
+                vSignedId.add(key);
+                if (key.startsWith("A")) {
+                    male++;
+                } else {
+                    female++;
+                }
             }
 
             ((TextView) findViewById(R.id.checkinResultMan)).setText(String.valueOf(male));

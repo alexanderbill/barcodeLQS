@@ -79,6 +79,9 @@ public abstract class BaseActivity extends FragmentActivity {
                         });
                     }
                     return;
+                } else {
+                    final SharedPreferences sharedPreferences = getSharedPreferences("name", MODE_PRIVATE);
+                    sharedPreferences.edit().putString("path", "").commit();
                 }
                 postReadExcelFail();
         }
