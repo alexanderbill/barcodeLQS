@@ -11,6 +11,13 @@
         android:hint="输入活动id"
         android:textColor="@android:color/holo_red_light" />
 
+    <CheckBox
+        android:id="@+id/useNumber"
+        android:text="记录胸牌号码"
+        android:textColor="#000"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >

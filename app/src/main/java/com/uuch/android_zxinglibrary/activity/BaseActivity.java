@@ -20,6 +20,8 @@ import org.apache.poi.ss.usermodel.Row;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by ubuntu on 17-9-7.
@@ -72,8 +74,14 @@ public abstract class BaseActivity extends FragmentActivity {
                             @Override
                             public void run() {
                                 final SharedPreferences sharedPreferences = getSharedPreferences("name", MODE_PRIVATE);
-                                sharedPreferences.edit().putString("path", path).commit();
                                 xlsData = doReadPath(path);
+                                if (!TextUtils.isEmpty(xlsData)) {
+                                    long time = System.currentTimeMillis();
+                                    SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+                                    Date d1 = new Date(time);
+                                    String t1 = format.format(d1);
+                                    sharedPreferences.edit().putString("path", t1 + " " + path).commit();
+                                }
                                 doDeal();
                             }
                         });

@@ -21,6 +21,8 @@ public class Config {
     public String APP_title;
     public String ID_title;
     public String footprint;
+    public boolean useNumber;
+    public boolean disableCapture;
 
     public static final Config instance = new Config();
 
@@ -46,5 +48,7 @@ public class Config {
             userstring = "admin";
         }
         users = Arrays.asList(userstring.split("/"));
+        useNumber = object.optBoolean("useNumber", false);
+        disableCapture = object.optBoolean("disableCapture", false);
     }
 }

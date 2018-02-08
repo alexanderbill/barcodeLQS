@@ -9,6 +9,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -25,6 +26,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 
 
 public class MainActivity extends BaseActivity {
@@ -100,9 +102,14 @@ public class MainActivity extends BaseActivity {
                 int radioButtonId = group.getCheckedRadioButtonId();
                 if (radioButtonId == R.id.offline) {
                     try {
-                        File config = new File("/sdcard/namecard/config.txt");
-                        FileInputStream is = new FileInputStream(config);
-                        byte b[]=new byte[(int)config.length()];     //创建合适文件大小的数组
+                        InputStream is;
+                        try {
+                            File config = new File("/sdcard/namecard/config.txt");
+                            is = new FileInputStream(config);
+                        } catch (Exception e) {
+                            is = getAssets().open("config.json");
+                        }
+                        byte b[]=new byte[is.available()];     //创建合适文件大小的数组
                         is.read(b);    //读取文件中的内容到b[]数组
                         is.close();
                         JSONObject object = new JSONObject(new String(b));

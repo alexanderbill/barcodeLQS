@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -121,6 +122,8 @@ public class CaptureActivity extends BaseActivity {
         final EditText name = (EditText) view
                 .findViewById(com.uuch.android_zxinglibrary.R.id.actionId);
         name.setText(actionid);
+        final CheckBox checkBox = (CheckBox) view.findViewById(com.uuch.android_zxinglibrary.R.id.useNumber);
+        checkBox.setChecked(Config.getInstance().useNumber);
 
         Button btnOK = (Button) view.findViewById(com.uuch.android_zxinglibrary.R.id.btn_ok);
         btnOK.setOnClickListener(new View.OnClickListener() {
@@ -162,12 +165,14 @@ public class CaptureActivity extends BaseActivity {
                     } else {
                         final String path = sharedPreferences.getString("path", "");
                         if (!TextUtils.isEmpty(path)) {
-                            xlsData = doReadPath(path);
+                            xlsData = doReadPath(path.split(" ")[1]);
                             doDeal();
                         } else {
                             showFileChooser("选择预签到表");
                         }
                     }
+
+                    Config.getInstance().useNumber = checkBox.isChecked();
 
                     dialog.dismiss();
                 } else {
@@ -219,6 +224,59 @@ public class CaptureActivity extends BaseActivity {
     }
 
     private void showAlertDialog(String text, final String key, final String show, final String result, final int status) {
+        if (Config.getInstance().useNumber) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            final AlertDialog dialog = builder.create();
+
+            View view = View.inflate(this, R.layout.input_number, null);
+            // dialog.setView(view);// 将自定义的布局文件设置给dialog
+            dialog.setView(view, 0, 0, 0, 0);// 设置边距为0,保证在2.x的版本上运行没问题
+
+            final TextView title = (TextView) view
+                    .findViewById(R.id.title);
+            if (!TextUtils.isEmpty(text)) {
+                title.setText(text);
+            }
+            final EditText phone = (EditText) view
+                    .findViewById(R.id.input_number);
+
+            Button btnOK = (Button) view.findViewById(R.id.btn_ok);
+            Button btnCancel = (Button) view.findViewById(R.id.btn_cancel);
+
+            btnOK.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    String sphone = phone.getText().toString().trim();
+                    if (!TextUtils.isEmpty(sphone)) {
+                        forceDoRecord(key, show, result, status, sphone);
+                        continueCap();
+                        dialog.dismiss();
+                    } else {
+
+                    }
+                }
+            });
+
+            btnCancel.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    forceDoRecord(key, show, result, status, "NULL");
+                    continueCap();
+                    dialog.dismiss();// 隐藏dialog
+                }
+            });
+
+            dialog.show();
+            return;
+        }
+
+        if (TextUtils.isEmpty(text)) {
+            forceDoRecord(key, show, result, status);
+            return;
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         AlertDialog dialog = builder.setPositiveButton(R.string.force_signin, new DialogInterface.OnClickListener() {
             @Override
@@ -236,6 +294,7 @@ public class CaptureActivity extends BaseActivity {
         }).setMessage(text).create();
 
         dialog.show();
+
     }
 
     private Vector<String> vSignedId = new Vector<>();
@@ -300,7 +359,7 @@ public class CaptureActivity extends BaseActivity {
                 return;
             }
             if (!raw.equals(result)) {
-                forceDoRecord(s[0], toShow, result, 0);
+                showAlertDialog("", s[0], toShow, result, 0);
             }
         } catch (Exception e) {
             Log.d("err", e.toString());
@@ -313,6 +372,10 @@ public class CaptureActivity extends BaseActivity {
     }
 
     private void forceDoRecord(String key, String toShow, String result, int status) {
+        forceDoRecord(key, toShow, result, status, "");
+    }
+
+    private void forceDoRecord(String key, String toShow, String result, int status, String number) {
         try {
             if (status != 2) {
                 vSignedId.add(key);
@@ -325,9 +388,11 @@ public class CaptureActivity extends BaseActivity {
 
             ((TextView) findViewById(R.id.checkinResultMan)).setText(String.valueOf(male));
             ((TextView) findViewById(R.id.checkinResultWoman)).setText(String.valueOf(female));
-            String[] details = toShow.split(" ");
-            if (details.length >= 2) {
-                ((TextView) findViewById(R.id.checkTitle)).setText(details[1] + " 签到中");
+            if (!TextUtils.isEmpty(toShow)) {
+                String[] details = toShow.split(" ");
+                if (details.length >= 2) {
+                    ((TextView) findViewById(R.id.checkTitle)).setText(details[1] + " 签到中");
+                }
             }
             RandomAccessFile raf = new RandomAccessFile(file, "rwd");
             raf.seek(file.length());
@@ -337,6 +402,9 @@ public class CaptureActivity extends BaseActivity {
             Date d1 = new Date(time);
             String t1 = format.format(d1);
             toRecord += "\t" + t1;
+            if (!TextUtils.isEmpty(number)) {
+                toRecord += "\t" + number;
+            }
             if (mUsername.equals("dev20170819") || status != 0) {
                 toRecord += "\t" + result;
                 if (status == 1) {
@@ -454,7 +522,7 @@ public class CaptureActivity extends BaseActivity {
             checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    doRecord(user.mRowId + " " + Config.getInstance().seal);
+                    doRecord(user.mRowId + " " + Config.getInstance().seal.get(0));
                     EditText et = (EditText)findViewById(R.id.search);
                     et.setText("");
                 }

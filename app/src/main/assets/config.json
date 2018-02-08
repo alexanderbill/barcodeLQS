@@ -5,5 +5,7 @@
   "seal": "ENTIRE",
   "APP_title": "新学员培训签到系统",
   "ID_title": "新皈依学员 培训证",
-  "footprint": "本证仅供本人使用，请勿转借他人。感恩合十"
+  "footprint": "本证仅供本人使用，请勿转借他人。感恩合十",
+  "useNumber": true,
+  "disableCapture": true
 }

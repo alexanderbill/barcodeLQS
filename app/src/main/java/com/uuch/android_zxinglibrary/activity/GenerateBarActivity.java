@@ -142,7 +142,7 @@ public class GenerateBarActivity extends BaseActivity {
                     male = false;
                 }
                 if (!TextUtils.isEmpty(sname) && !TextUtils.isEmpty(sphone)) {
-                    generateBitmap(sdepartment + " " + sname + " " + (male? "男":"女") + " " + sphone);
+                    generateBitmap(new User(sdepartment + " " + sname + " " + (male? "男":"女") + " " + sphone));
                     dialog.dismiss();
                 } else {
 
@@ -166,7 +166,7 @@ public class GenerateBarActivity extends BaseActivity {
         if (!TextUtils.isEmpty(xlsData)) {
             String strings[] = xlsData.split("\n");
             for (String p : strings) {
-                generateBitmap(p);
+                generateBitmap(new User(p));
             }
             return;
         }
@@ -205,36 +205,16 @@ public class GenerateBarActivity extends BaseActivity {
         generateBitmapForSingle();
     }
 
-    private String genEnc(String[] s) {
-        String toEnc = "A";
-        if ("女".equals(s[2])) {
-            toEnc = "B";
-        }
-        toEnc += s[3];
-        if (s.length > 4 && !TextUtils.isEmpty(s[4])) {
-            toEnc += s[4];
-        } else {
-            String p = PinyinHelper.getInstance().getPinyins(s[1], "");
-            if (p == null) {
-                p = PinyinHelper.getInstance().getPinyins(s[1], "");
-            } else {
-                toEnc += p;
-            }
-        }
-        return toEnc;
-    }
 
-    private String generateBitmap(String content) {
+
+    // param：部组+姓名+性别+电话+简拼(可选)
+    // A17710275730zl
+    private String generateBitmap(User user) {
         try {
-            String[] s = content.trim().split(" ");
-
-            name.setText(s[1]);
-            sex.setText(s[2]);
-            department.setText(s[0]);
-            barcodeString = genEnc(s);
-            for (int i = 5; i < s.length; i++) {
-                barcodeString += " " + s[i];
-            }
+            name.setText(user.mName);
+            sex.setText(user.mSex);
+            department.setText(user.mDepart);
+            barcodeString = user.mKey + user.mDesp;
             byte[] bytes= Aes.encrypt(barcodeString.getBytes(), "38297b2faee515715a13b708aef17758");
             Log.d("leizhou", barcodeString);
             String contentE = new String(Base64.encode(bytes, Base64.DEFAULT));
@@ -243,8 +223,7 @@ public class GenerateBarActivity extends BaseActivity {
 
             barcode.setImageBitmap(b);
 
-            saveBitmap(s[2] + "-" + s[0] + "-" + s[1] + ".png", barcodeString);
-            barcodeString += " " + s[1] + " " + s[2] + " " + s[0];
+            saveBitmap(user.mSex + "-" + user.mDepart + "-" + user.mName + ".png", barcodeString);
         } catch (Exception e) {
             e.printStackTrace();
         }
