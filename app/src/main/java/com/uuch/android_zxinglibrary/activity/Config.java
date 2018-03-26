@@ -23,6 +23,7 @@ public class Config {
     public String footprint;
     public boolean useNumber;
     public boolean disableCapture;
+    public boolean includeYG;
 
     public static final Config instance = new Config();
 

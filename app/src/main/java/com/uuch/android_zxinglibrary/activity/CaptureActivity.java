@@ -38,6 +38,7 @@ import java.io.FileReader;
 import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -54,7 +55,9 @@ public class CaptureActivity extends BaseActivity {
 
     CaptureFragment captureFragment;
     File file;
+    File fileYigong;
     private String mUsername;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -94,7 +97,7 @@ public class CaptureActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode) {
+        switch (requestCode) {
             case 2:
                 // ResultActivity的返回数据
                 if (resultCode == RESULT_OK) {
@@ -109,6 +112,7 @@ public class CaptureActivity extends BaseActivity {
 
     private int male = 0;
     private int female = 0;
+
     private void showAlertDialog() {
         final SharedPreferences sharedPreferences = getSharedPreferences("name", MODE_PRIVATE);
         final String actionid = sharedPreferences.getString("name", "default");
@@ -125,6 +129,9 @@ public class CaptureActivity extends BaseActivity {
         final CheckBox checkBox = (CheckBox) view.findViewById(com.uuch.android_zxinglibrary.R.id.useNumber);
         checkBox.setChecked(Config.getInstance().useNumber);
 
+        final CheckBox checkBox1 = (CheckBox) view.findViewById(R.id.includeYG);
+        checkBox1.setChecked(Config.getInstance().includeYG);
+
         Button btnOK = (Button) view.findViewById(com.uuch.android_zxinglibrary.R.id.btn_ok);
         btnOK.setOnClickListener(new View.OnClickListener() {
 
@@ -132,7 +139,7 @@ public class CaptureActivity extends BaseActivity {
             public void onClick(View v) {
                 String sname = name.getText().toString();
                 if (!TextUtils.isEmpty(sname)) {
-                    ((TextView)findViewById(R.id.checkTitle)).setText(sname + " 签到中");
+                    ((TextView) findViewById(R.id.checkTitle)).setText(sname + " 签到中");
                     try {
                         String append = mUsername;
                         if (append.equals("dev20170819")) {
@@ -142,18 +149,13 @@ public class CaptureActivity extends BaseActivity {
                         if (!file.exists()) {
                             file.createNewFile();
                         }
-                        sharedPreferences.edit().putString("name", sname).commit();
-                        BufferedReader br = new BufferedReader(new FileReader(file));
-                        String readline;
-                        while ((readline = br.readLine()) != null) {
-                            String[] s = readline.split("\t");
-                            vSignedId.add(s[0]);
-                            if (readline.charAt(0) == 'A')
-                                male++;
-                            else
-                                female++;
+                        fileYigong = new File("/sdcard/namecard/" + sname + "-" + append + "-义工.txt");
+                        if (!fileYigong.exists()) {
+                            fileYigong.createNewFile();
                         }
-                        br.close();
+                        sharedPreferences.edit().putString("name", sname).commit();
+                        readPreRecord(file);
+                        readPreRecord(fileYigong);
                         ((TextView) findViewById(R.id.checkinResultMan)).setText(String.valueOf(male));
                         ((TextView) findViewById(R.id.checkinResultWoman)).setText(String.valueOf(female));
                     } catch (Exception e) {
@@ -173,6 +175,7 @@ public class CaptureActivity extends BaseActivity {
                     }
 
                     Config.getInstance().useNumber = checkBox.isChecked();
+                    Config.getInstance().includeYG = checkBox1.isChecked();
 
                     dialog.dismiss();
                 } else {
@@ -182,6 +185,27 @@ public class CaptureActivity extends BaseActivity {
         });
         dialog.setCancelable(false);
         dialog.show();
+    }
+
+    private void readPreRecord(File file) {
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(file));
+            String readline;
+            while ((readline = br.readLine()) != null) {
+                String[] s = readline.split("\t");
+                vSignedId.add(s[0]);
+                if (readline.charAt(0) == 'A')
+                    male++;
+                else
+                    female++;
+            }
+            if (br != null) {
+                br.close();
+            }
+        } catch (Exception e) {
+
+        }
     }
 
     private ListPopupWindow listPopupWindow;
@@ -223,8 +247,8 @@ public class CaptureActivity extends BaseActivity {
         });
     }
 
-    private void showAlertDialog(String text, final String key, final String show, final String result, final int status) {
-        if (Config.getInstance().useNumber) {
+    private void showAlertDialog(String text, final String key, final PreSign show, final String result, final int status) {
+        if (Config.getInstance().useNumber || Config.getInstance().includeYG) {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             final AlertDialog dialog = builder.create();
@@ -241,6 +265,15 @@ public class CaptureActivity extends BaseActivity {
             final EditText phone = (EditText) view
                     .findViewById(R.id.input_number);
 
+            if (Config.getInstance().useNumber) {
+                phone.setVisibility(View.VISIBLE);
+            }
+
+            final CheckBox checkBox = (CheckBox) view.findViewById(R.id.yigong);
+            if (Config.getInstance().includeYG) {
+                checkBox.setVisibility(View.VISIBLE);
+            }
+
             Button btnOK = (Button) view.findViewById(R.id.btn_ok);
             Button btnCancel = (Button) view.findViewById(R.id.btn_cancel);
 
@@ -250,7 +283,7 @@ public class CaptureActivity extends BaseActivity {
                 public void onClick(View v) {
                     String sphone = phone.getText().toString().trim();
                     if (!TextUtils.isEmpty(sphone)) {
-                        forceDoRecord(key, show, result, status, sphone);
+                        forceDoRecord(key, show, result, status, sphone, checkBox.isChecked());
                         continueCap();
                         dialog.dismiss();
                     } else {
@@ -263,7 +296,7 @@ public class CaptureActivity extends BaseActivity {
 
                 @Override
                 public void onClick(View v) {
-                    forceDoRecord(key, show, result, status, "NULL");
+                    forceDoRecord(key, show, result, status, "NULL", checkBox.isChecked());
                     continueCap();
                     dialog.dismiss();// 隐藏dialog
                 }
@@ -300,7 +333,7 @@ public class CaptureActivity extends BaseActivity {
     private Vector<String> vSignedId = new Vector<>();
 
     private Vector<String> vId = new Vector<>();
-    private Map<String, String> vName = new HashMap<>();
+    private Map<String, PreSign> vName = new HashMap<>();
     @Override
     void postReadExcel() {
         if (!TextUtils.isEmpty(xlsData)) {
@@ -309,7 +342,7 @@ public class CaptureActivity extends BaseActivity {
                 String s[] = p.split(" ");
                 if (s[0].startsWith("A") || s[0].startsWith("B")) {
                     vId.add(s[0]);
-                    vName.put(s[0], p.substring(s[0].length()));
+                    vName.put(s[0], new PreSign(Arrays.copyOfRange(s, 1, s.length)));
                 }
             }
             initSearch(strings);
@@ -317,6 +350,27 @@ public class CaptureActivity extends BaseActivity {
         }
     }
 
+    class PreSign {
+        final String name;
+        String sex = "";
+        String className = "";
+        String classNick = "";
+        PreSign(String[] s) {
+            name = s[0];
+            try {
+                sex = s[1];
+                className = s[3];
+                classNick = s[2];
+            } catch (Exception e) {
+
+            }
+        }
+
+        @Override
+        public String toString() {
+            return name + " " + sex + " " + classNick + " " + className;
+        }
+    }
 
     void postReadExcelFail() {
 
@@ -346,16 +400,17 @@ public class CaptureActivity extends BaseActivity {
                 result = "";
                 throw new Exception("");
             }
-            String toShow = vName.get(s[0]);
+            PreSign toShow = vName.get(s[0]);
             if (vSignedId.contains(s[0])) {
-                if (TextUtils.isEmpty(toShow)) {
-                    toShow = s[0];
+                if (toShow == null) {
+                    String pres[] = {s[0], "", "", ""};
+                    toShow = new PreSign(pres);
                 }
-                showAlertDialog(toShow + "已经签到，请勿重复签到", s[0], toShow, result, 2);
+                showAlertDialog(toShow.name + "已经签到，请勿重复签到", s[0], toShow, result, 2);
                 return;
             }
             if (vId.size() > 0 && !vId.contains(s[0])) {
-                showAlertDialog(s[0] + "不在名单中", s[0], s[0], result, 1);
+                showAlertDialog(s[0] + "不在名单中", s[0], toShow, result, 1);
                 return;
             }
             if (!raw.equals(result)) {
@@ -371,11 +426,11 @@ public class CaptureActivity extends BaseActivity {
         continueCap();
     }
 
-    private void forceDoRecord(String key, String toShow, String result, int status) {
-        forceDoRecord(key, toShow, result, status, "");
+    private void forceDoRecord(String key, PreSign toShow, String result, int status) {
+        forceDoRecord(key, toShow, result, status, "", false);
     }
 
-    private void forceDoRecord(String key, String toShow, String result, int status, String number) {
+    private void forceDoRecord(String key, PreSign toShow, String result, int status, String number, boolean yigong) {
         try {
             if (status != 2) {
                 vSignedId.add(key);
@@ -388,12 +443,24 @@ public class CaptureActivity extends BaseActivity {
 
             ((TextView) findViewById(R.id.checkinResultMan)).setText(String.valueOf(male));
             ((TextView) findViewById(R.id.checkinResultWoman)).setText(String.valueOf(female));
-            if (!TextUtils.isEmpty(toShow)) {
-                String[] details = toShow.split(" ");
-                if (details.length >= 2) {
-                    ((TextView) findViewById(R.id.checkTitle)).setText(details[1] + " 签到中");
-                }
+            if (toShow != null) {
+                String details = toShow.classNick + " " + toShow.className + " " + toShow.name;
+                ((TextView) findViewById(R.id.checkTitle)).setText(details + " 签到中");
             }
+            String toRecord = record(file, key, number, status, "", null);
+            if (yigong) {
+                record(fileYigong, key, number, status, result, toShow);
+            }
+            if (!TextUtils.isEmpty(toRecord)) {
+                Log.d("leizhou", toRecord);
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
+    private String record(File file, String key, String number, int status, String result, PreSign to) {
+        try {
             RandomAccessFile raf = new RandomAccessFile(file, "rwd");
             raf.seek(file.length());
             String toRecord = key;
@@ -404,6 +471,9 @@ public class CaptureActivity extends BaseActivity {
             toRecord += "\t" + t1;
             if (!TextUtils.isEmpty(number)) {
                 toRecord += "\t" + number;
+            }
+            if (to != null) {
+                toRecord += "\t" + to.toString();
             }
             if (mUsername.equals("dev20170819") || status != 0) {
                 toRecord += "\t" + result;
@@ -416,12 +486,11 @@ public class CaptureActivity extends BaseActivity {
             toRecord += "\n";
             raf.write(toRecord.getBytes());
             raf.close();
-            if (!TextUtils.isEmpty(toRecord)) {
-                Log.d("leizhou", toRecord);
-            }
+            return toRecord;
         } catch (Exception e) {
 
         }
+        return "";
     }
     /**
      * 二维码解析回调函数

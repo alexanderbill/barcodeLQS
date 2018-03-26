@@ -18,6 +18,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
+    <CheckBox
+        android:id="@+id/includeYG"
+        android:text="包含义工签到"
+        android:textColor="#000"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
