@@ -287,7 +287,9 @@ public class CaptureActivity extends BaseActivity {
                         continueCap();
                         dialog.dismiss();
                     } else {
-
+                        forceDoRecord(key, show, result, status, "null", checkBox.isChecked());
+                        continueCap();
+                        dialog.dismiss();
                     }
                 }
             });
@@ -296,12 +298,12 @@ public class CaptureActivity extends BaseActivity {
 
                 @Override
                 public void onClick(View v) {
-                    forceDoRecord(key, show, result, status, "NULL", checkBox.isChecked());
+                    forceDoRecord(key, show, result, status, "null", checkBox.isChecked());
                     continueCap();
                     dialog.dismiss();// 隐藏dialog
                 }
             });
-
+            dialog.setCancelable(false);
             dialog.show();
             return;
         }
@@ -326,6 +328,7 @@ public class CaptureActivity extends BaseActivity {
             }
         }).setMessage(text).create();
 
+        dialog.setCancelable(false);
         dialog.show();
 
     }

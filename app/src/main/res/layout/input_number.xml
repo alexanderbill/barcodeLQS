@@ -15,7 +15,7 @@
     <EditText
         android:id="@+id/input_number"
         android:hint="输入胸牌号码"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:textColor="#000"
         android:textColorHint="#000"
         android:inputType="number"
@@ -25,10 +25,11 @@
     <CheckBox
         android:id="@+id/yigong"
         android:text="义工"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:checked="false"
         android:textColor="#000"
         android:textSize="20dp"
+        android:theme="@style/MyCheckBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -45,6 +46,7 @@
 
         <Button
             android:id="@+id/btn_cancel"
+            android:visibility="gone"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
